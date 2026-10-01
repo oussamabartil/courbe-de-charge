@@ -1,0 +1,9 @@
+# Secrets : identifiants de la base
+.env
+
+# Environnement Python et fichiers générés
+.venv/
+__pycache__/
+
+# Notes personnelles de préparation
+EXPLICATIONS.md

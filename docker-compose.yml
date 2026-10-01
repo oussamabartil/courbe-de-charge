@@ -1,0 +1,28 @@
+services:
+  db:
+    # PostgreSQL 16 avec l'extension TimescaleDB déjà installée.
+    image: timescale/timescaledb:latest-pg16
+    container_name: ecofacto_db
+    # Les valeurs viennent du fichier .env (lu automatiquement par docker compose) :
+    # aucun mot de passe n'est écrit en dur ici, donc ce fichier peut être versionné.
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    # Volume nommé : les données survivent à "docker compose down".
+    # Sans lui, supprimer le conteneur effacerait toute la base.
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Permet d'attendre que la base soit réellement prête à accepter des connexions
+    # (le conteneur démarre avant que PostgreSQL ne soit initialisé).
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  pgdata:
