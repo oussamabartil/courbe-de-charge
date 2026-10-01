@@ -2,6 +2,28 @@
 
 Projet d'entraînement personnel : analyse de courbes de charge électriques (pas de 30 min, format proche des données Enedis) pour deux compteurs fictifs, `PRM_001` et `PRM_002`. Les données sont analysées en pandas puis stockées et requêtées dans PostgreSQL + TimescaleDB.
 
+## Résultats
+
+Consommation journalière du compteur `PRM_001` sur 3 mois : on voit clairement le rythme de la semaine (environ 315 kWh par jour ouvré, environ 72 kWh le week-end).
+
+![Consommation journalière](conso_journaliere.png)
+
+Journée type : puissance moyenne par heure, en semaine et le week-end. La courbe du week-end donne la consommation de fond (environ 3 kW).
+
+![Journée type](journee_type.png)
+
+| Indicateur | PRM_001 | PRM_002 |
+|---|---|---|
+| Consommation moyenne par jour | 246 kWh | 430 kWh |
+| Pic de puissance | 54,6 kW (26/03 à 16h30) | 92,3 kW (22/01 à 16h30) |
+| Part en heures pleines | 84,6 % | 82,3 % |
+| Puissance souscrite (fictive) | 108 kVA, probablement trop haute | 96 kVA, adaptée |
+
+Côté base de données :
+- le calcul journalier fait en SQL (agrégat continu TimescaleDB) donne les mêmes valeurs que pandas sur les 182 jours ;
+- la requête sur l'agrégat est environ 13 fois plus rapide que sur la table brute ;
+- la compression réduit la table de 2,2 Mo à 0,85 Mo.
+
 ## Prérequis
 
 - Python 3.10+
